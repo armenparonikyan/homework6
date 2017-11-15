@@ -39,14 +39,18 @@ const makeMove = function(board, location ,isX){
 		return -1;
 	}
 
-
 	board[x][y] = isX ? 'x': 'o';
+
+	if(isX){
+		ctx.drawImage(xImg, x*200, y*200, 200,200);
+	}else {
+		ctx.drawImage(oImg, x*200, y*200, 200,200);
+	}
 
 	return 0;
 };
 
 const findWinner = function(board){
-	debugger;
 	const result = {
 		winner: "none",
 		winningLocations:[]
@@ -157,9 +161,8 @@ const findWinner = function(board){
 };
 
 
-const loop = function(isX){
-	const location = nextMove(board, isX);
-	const isOk = makeMove(board, location, isX);
+const loop = function(isX, x, y){
+	let isOk = makeMove(board, [x,y], isX);
 
 	if(isOk === -1){
 		console.log('invalid move');
@@ -167,7 +170,29 @@ const loop = function(isX){
 		return;
 	}
 
-	const winner = findWinner(board);
+	let winner = findWinner(board);
+	if(winner){
+		if(winner.winningLocations) {
+			console.log("The winner is:" + winner.winner);
+			return;
+		}
+
+		if(winner.winner === 'none'){
+			console.log("it is a tie");
+			return;
+		}
+	}
+	isX = !isX;
+	let location = nextMove(board, isX);
+	isOk = makeMove(board, location, isX);
+
+	if(isOk === -1){
+		console.log('invalid move');
+		console.log("The winner is:" + isX ? 'o': 'x');
+		return;
+	}
+
+	winner = findWinner(board);
 	if(winner){
 		if(winner.winningLocations) {
 			console.log("The winner is:" + winner.winner);
@@ -182,3 +207,9 @@ const loop = function(isX){
 
 };
 
+canvas.addEventListener('click', function(evt) {
+	const x = Math.floor(evt.offsetX/200);
+	const y = Math.floor(evt.offsetY/200);
+
+	loop(true, x,y);
+}, false);
